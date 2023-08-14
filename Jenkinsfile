@@ -28,6 +28,16 @@ environment {
       }
     }
   }
+
+  stage('Nexus - Saving Artifact'){
+	steps{
+	 script{
+	  docker.withRegistry("${DOCKER_REGISTRY}", '1d187952-2e25-43ef-ad56-3b074de189d0'){
+	 image.push()
+	}
+      }
+     }
+}
   post {
     always {
       echo "Pipeline finalizado."
