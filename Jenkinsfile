@@ -31,8 +31,7 @@ environment {
 	steps{
 	 script{
 	  docker.withRegistry("${DOCKER_REGISTRY}", '1d187952-2e25-43ef-ad56-3b074de189d0'){
-          def imageToPush = "${NEXUS_REPOSITORY}/${CONTAINER_IMAGE}"
-	 imageToPush.push()
+	  sh 'docker push "${NEXUS_REPOSITORY}/${CONTAINER_IMAGE}"
 	}
       }
      }
