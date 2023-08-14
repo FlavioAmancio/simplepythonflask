@@ -21,15 +21,12 @@ environment {
         sh 'git clone http://192.168.88.10:3000/odilon/simplePythonFlask.git'
       }
     }
-
     stage('Dockerbuild') {
       steps {
         sh 'docker build -t "${CONTAINER_IMAGE}" -f simplePythonFlask/Dockerfile simplePythonFlask'
       }
     }
-  }
-
-  stage('Nexus - Saving Artifact'){
+   stage('Nexus - Saving Artifact'){
 	steps{
 	 script{
 	  docker.withRegistry("${DOCKER_REGISTRY}", '1d187952-2e25-43ef-ad56-3b074de189d0'){
@@ -37,6 +34,7 @@ environment {
 	}
       }
      }
+   }
 }
   post {
     always {
