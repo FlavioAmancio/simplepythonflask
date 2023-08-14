@@ -24,13 +24,15 @@ environment {
     stage('Dockerbuild') {
       steps {
         sh 'docker build -t "${CONTAINER_IMAGE}" -f simplePythonFlask/Dockerfile simplePythonFlask'
+        sh 'docker tag "${CONTAINER_IMAGE}" "${DOCKER_REGISTRY}:${CONTAINER_IMAGE}"'
       }
     }
    stage('Nexus - Saving Artifact'){
 	steps{
 	 script{
 	  docker.withRegistry("${DOCKER_REGISTRY}", '1d187952-2e25-43ef-ad56-3b074de189d0'){
-	 image.push()
+          def imageToPush = "${DOCKER_REGISTRY}:${CONTAINER_IMAGE}"
+	 imageToPush.push()
 	}
       }
      }
