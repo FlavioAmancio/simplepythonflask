@@ -29,18 +29,22 @@ environment {
     }
    stage('Unit Testing'){
      steps{
-	sh 'docker run --rm -tdi --name unit "${NEXUS_REPOSITORY}/${CONTAINER_IMAGE}"'
-        sh 'sleep 5'
-        sh 'docker exec -t unit nosetests --with-xunit --with-coverage --coverpackage=project test_users.py'
-	sh 'docker cp unit:/courseCatalog/nosetests.xml .'
-	sh 'docker stop unit'
+	    sh 'docker run --rm -tdi --name unit "${NEXUS_REPOSITORY}/${CONTAINER_IMAGE}"'
+      sh 'sleep 5'
+      sh 'docker exec -t unit nosetests --with-xunit --with-coverage --coverpackage=project test_users.py'
+	    sh 'docker cp unit:/courseCatalog/nosetests.xml .'
+	    sh 'docker stop unit'
    }
   }
+  
   stage('Gather test'){
-	junit 'nosetests.xml'
+		steps{
+    junit 'nosetests.xml'
+  }
   }
 
   stage('SonarQube Analysis'){
+   	steps{ 
    script{
     def sonarScannerPath = tool 'SonarScanner'
      withSonarQubeEnv('SonarQube'){
@@ -48,6 +52,8 @@ environment {
      -Dsonar.projectKey=courseCatalog -Dsonar.sources=."
    }
  }
+}
+}
 
   stage('Nexus - Saving Artifact'){
 	steps{
@@ -59,7 +65,7 @@ environment {
      }
    }
 }
-}
+
   post {
     always {
       echo "Pipeline finalizado."
@@ -73,3 +79,4 @@ environment {
     }
   }
 }
+
