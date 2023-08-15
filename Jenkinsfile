@@ -27,7 +27,29 @@ environment {
         sh 'docker tag "${CONTAINER_IMAGE}" "${NEXUS_REPOSITORY}/${CONTAINER_IMAGE}"'
       }
     }
-   stage('Nexus - Saving Artifact'){
+   stage('Unit Testing'){
+     steps{
+	sh 'docker run --rm -tdi --name unit "${NEXUS_REPOSITORY}/${CONTAINER_IMAGE}"'
+        sh 'sleep 5'
+        sh 'docker exec -t unit nosetests --with-xunit --with-coverage --coverpackage=project test_users.py'
+	sh 'docker cp unit:/courseCatalog/nosetests.xml .'
+	sh 'docker stop unit'
+   }
+  }
+  stage('Gather test'){
+	junit 'nosetests.xml'
+  }
+
+  stage('SonarQube Analysis'){
+   script{
+    def sonarScannerPath = tool 'SonarScanner'
+     withSonarQubeEnv('SonarQube'){
+     sh "${sonarScannerPath}/bin/sonar-scanner \
+     -Dsonar.projectKey=courseCatalog -Dsonar.sources=."
+   }
+ }
+
+  stage('Nexus - Saving Artifact'){
 	steps{
 	 script{
 	  docker.withRegistry("${DOCKER_REGISTRY}", '1d187952-2e25-43ef-ad56-3b074de189d0'){
