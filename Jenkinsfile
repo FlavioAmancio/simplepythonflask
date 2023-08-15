@@ -59,6 +59,7 @@ environment {
      }
    }
 }
+}
   post {
     always {
       echo "Pipeline finalizado."
