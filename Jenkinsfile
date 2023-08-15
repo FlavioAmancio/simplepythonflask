@@ -31,7 +31,7 @@ environment {
      steps{
 	    sh 'docker run --rm -tdi --name unit "${NEXUS_REPOSITORY}/${CONTAINER_IMAGE}"'
       sh 'sleep 5'
-      sh 'docker exec -t unit nosetests --with-xunit --with-coverage --coverpackage=project test_users.py'
+      sh 'docker exec -t unit nosetests --with-xunit --with-coverage --cover-package=project test_users.py'
 	    sh 'docker cp unit:/courseCatalog/nosetests.xml .'
 	    sh 'docker stop unit'
    }
@@ -76,6 +76,7 @@ environment {
     }
     failure {
       echo "Pipeline finalizado com Falha"
+      sh   "docker image rm unit"
     }
   }
 }
