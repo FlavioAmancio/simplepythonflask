@@ -12,11 +12,16 @@ podTemplate(containers: [
       containerEnvVar(key: 'HTTP_PROTOCOL', value: 'http://'),
       containerEnvVar(key: 'REGISTRY_URL', value: 'http://192.168.88.20:8082')
       ]
-),
+    ),
     containerTemplate(
     name: 'openjdk', 
     image: 'openjdk:11', 
-    command: 'sleep', args: '99d')],
+    command: 'sleep', args: '99d'),
+    containerTemplate(
+    name: 'kubectl', 
+    image: 'alpine:3.7', 
+    command: 'sleep', args: '99d') 
+    ],
    volumes: [
    hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')]
    ){
@@ -77,6 +82,17 @@ node(POD_LABEL) {
       }
    }
   }
+    container('kubectl'){
+    stage('Realizar deploy no Kubernetes') {
+      sh 'apk update  && apk add --no-cache curl'
+      sh 'curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl'
+      sh 'chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl'
+      sh 'kubectl set image deployment/web simplepythonflask=$NEXUS_REPOSITORY/$IMAGE_NAME:$BUILD_ID -n homolog '
+      sh 'sleep 10'
+      sh 'kubectl get pods -n homolog'
+
+    }
+    }
 }
   post {
     always {
