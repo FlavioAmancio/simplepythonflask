@@ -20,7 +20,14 @@ podTemplate(containers: [
     containerTemplate(
     name: 'kubectl', 
     image: 'alpine:3.7', 
-    command: 'sleep', args: '99d') 
+    command: 'sleep', args: '99d',
+    envVars: [
+      containerEnvVar(key: 'IMAGE_NAME', value: 'course_catalog' ),
+      containerEnvVar(key: 'NEXUS_REPOSITORY', value: '192.168.88.20:8082'),
+      containerEnvVar(key: 'HTTP_PROTOCOL', value: 'http://'),
+      containerEnvVar(key: 'REGISTRY_URL', value: 'http://192.168.88.20:8082')
+      ]
+      ) 
     ],
    volumes: [
    hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')]
@@ -43,10 +50,6 @@ node(POD_LABEL) {
    
     }
     stage('Dockerbuild') {
-        sh 'echo $IMAGE_TAG'
-        sh 'echo $IMAGE_NAME'
-        sh 'echo $BUILD_NUMBER'
-        sh 'echo $BUILD_ID'
         sh 'docker build -t "$IMAGE_NAME:$BUILD_ID" .'
         sh 'docker tag "$IMAGE_NAME:$BUILD_ID" "$NEXUS_REPOSITORY/$IMAGE_NAME:$BUILD_ID"'
     }
